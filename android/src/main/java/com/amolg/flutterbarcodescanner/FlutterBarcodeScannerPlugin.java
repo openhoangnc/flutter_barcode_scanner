@@ -44,7 +44,7 @@ public class FlutterBarcodeScannerPlugin implements MethodCallHandler, ActivityR
     private Map<String, Object> arguments;
 
     private static final String TAG = FlutterBarcodeScannerPlugin.class.getSimpleName();
-    private static final int RC_BARCODE_CAPTURE = 9001;
+    private static final int RC_BARCODE_CAPTURE = 9015901;
     public static String lineColor = "";
     public static boolean isShowFlashIcon = false;
     public static boolean isContinuousScan = false;
@@ -146,24 +146,24 @@ public class FlutterBarcodeScannerPlugin implements MethodCallHandler, ActivityR
      */
     @Override
     public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RC_BARCODE_CAPTURE) {
+        if (requestCode == RC_BARCODE_CAPTURE && pendingResult != null) {
             if (resultCode == CommonStatusCodes.SUCCESS) {
                 if (data != null) {
                     try {
                         Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                         String barcodeResult = barcode.rawValue;
-                        pendingResult.success(barcodeResult);
+                        pendingResult.success("success:"+barcodeResult);
+                        pendingResult = null;
+                        arguments = null;
+                        return true;
                     } catch (Exception e) {
-                        pendingResult.success("-1");
+                        pendingResult.success("error:"+ e.getMessage()+"\n"+ Log.getStackTraceString(e));
                     }
                 } else {
-                    pendingResult.success("-1");
+                    pendingResult.success("canceled:result data is null");
                 }
-                pendingResult = null;
-                arguments = null;
-                return true;
             } else {
-                pendingResult.success("-1");
+                pendingResult.success("error:activity result code is not CommonStatusCodes.SUCCESS");
             }
         }
         return false;
@@ -193,6 +193,7 @@ public class FlutterBarcodeScannerPlugin implements MethodCallHandler, ActivityR
      * @param barcode
      */
     public static void onBarcodeScanReceiver(final Barcode barcode) {
+        if (barcodeStream == null) return;
         try {
             if (barcode != null && !barcode.displayValue.isEmpty()) {
                 activity.runOnUiThread(new Runnable() {

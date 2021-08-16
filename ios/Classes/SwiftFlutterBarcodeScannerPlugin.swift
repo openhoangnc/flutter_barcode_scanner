@@ -51,7 +51,7 @@ public class SwiftFlutterBarcodeScannerPlugin: NSObject, FlutterPlugin, ScanBarc
         return nil
     }
     
-    public static func onBarcodeScanReceiver( barcode:String){
+    public static func onBarcodeScanReceiver(barcode: String){
         barcodeStream!(barcode)
     }
     
@@ -459,12 +459,12 @@ class BarcodeScannerViewController: UIViewController {
     @IBAction private func cancelButtonClicked() {
         if SwiftFlutterBarcodeScannerPlugin.isContinuousScan{
             self.dismiss(animated: true, completion: {
-                SwiftFlutterBarcodeScannerPlugin.onBarcodeScanReceiver(barcode: "-1")
+                SwiftFlutterBarcodeScannerPlugin.onBarcodeScanReceiver(barcode: "canceled:cancel button clicked")
             })
         }else{
             if self.delegate != nil {
                 self.dismiss(animated: true, completion: {
-                    self.delegate?.userDidScanWith(barcode: "-1")
+                    self.delegate?.userDidScanWith(barcode: "canceled:cancel button clicked")
                 })
             }
         }
@@ -587,9 +587,9 @@ extension BarcodeScannerViewController: AVCaptureMetadataOutputObjectsDelegate {
             //qrCodeFrameView?.frame = barCodeObject!.bounds
             if metadataObj.stringValue != nil {
                 if(SwiftFlutterBarcodeScannerPlugin.isContinuousScan){
-                    SwiftFlutterBarcodeScannerPlugin.onBarcodeScanReceiver(barcode: metadataObj.stringValue!)
+                    SwiftFlutterBarcodeScannerPlugin.onBarcodeScanReceiver(barcode: "success:"+metadataObj.stringValue!)
                 }else{
-                    launchApp(decodedURL: metadataObj.stringValue!)
+                    launchApp(decodedURL: "success:"+metadataObj.stringValue!)
                 }
             }
         }
